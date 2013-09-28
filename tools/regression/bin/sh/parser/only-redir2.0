@@ -1,0 +1,2 @@
+# $FreeBSD: stable/9/tools/regression/bin/sh/parser/only-redir2.0 255065 2013-08-30 10:07:10Z jilles $
+</dev/null | :
