@@ -393,7 +393,7 @@ int	mac_vnode_check_listextattr(struct ucred *cred, struct vnode *vp,
 	    int attrnamespace);
 int	mac_vnode_check_lookup(struct ucred *cred, struct vnode *dvp,
  	    struct componentname *cnp);
-int	mac_vnode_check_post_lookup(struct ucred *cred, struct vnode *dvp,
+void	mac_vnode_post_lookup(struct ucred *cred, struct vnode *dvp,
  	    struct componentname *cnp, struct vnode *vp);
 int	mac_vnode_check_mmap(struct ucred *cred, struct vnode *vp, int prot,
 	    int flags);

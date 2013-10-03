@@ -579,23 +579,17 @@ mac_vnode_check_lookup(struct ucred *cred, struct vnode *dvp,
 	return (error);
 }
 
-MAC_CHECK_PROBE_DEFINE4(vnode_check_post_lookup, "struct ucred *",
-    "struct vnode *", "struct componentname *", "struct vnode *");	
-
-int
-mac_vnode_check_post_lookup(struct ucred *cred, struct vnode *dvp,
-    struct componentname *cnp, struct vnode *vp)
+void
+mac_vnode_post_lookup(struct ucred *cred, struct vnode *dvp,
+		      struct componentname *cnp, struct vnode *vp)
 {
-	int error;
+	ASSERT_VOP_LOCKED(dvp, "mac_vnode_post_lookup");
+	ASSERT_VOP_LOCKED(vp, "mac_vnode_post_lookup");
 
-	ASSERT_VOP_LOCKED(dvp, "mac_vnode_check_post_lookup");
-	ASSERT_VOP_LOCKED(vp, "mac_vnode_check_post_lookup");
+	MAC_POLICY_PERFORM(vnode_post_lookup, cred, dvp, dvp->v_label, cnp,
+			   vp, vp->v_label);
 
-	MAC_POLICY_CHECK(vnode_check_post_lookup, cred, dvp, dvp->v_label, cnp,
-			 vp, vp->v_label);
-	MAC_CHECK_PROBE4(vnode_check_post_lookup, error, cred, dvp, cnp, vp);
-
-	return (error);
+	return;
 }
 
 MAC_CHECK_PROBE_DEFINE4(vnode_check_mmap, "struct ucred *", "struct vnode *",

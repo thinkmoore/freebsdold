@@ -783,16 +783,15 @@ unionlookup:
 		}
 		goto success;
 	} else
+		cnp->cn_lkflags = lkflags_save;
+
 #ifdef MAC
 	if ((cnp->cn_flags & NOMACCHECK) == 0) {
-		error =
-		  mac_vnode_check_post_lookup(cnp->cn_thread->td_ucred, dp,
-					      cnp, ndp->ni_vp);
-		if (error)
-			goto bad;
+		mac_vnode_post_lookup(cnp->cn_thread->td_ucred, dp,
+				      cnp, ndp->ni_vp);
 	}
 #endif
-		cnp->cn_lkflags = lkflags_save;
+
 #ifdef NAMEI_DIAGNOSTIC
 	printf("found\n");
 #endif
