@@ -377,6 +377,9 @@ int	mac_vnode_check_chdir(struct ucred *cred, struct vnode *dvp);
 int	mac_vnode_check_chroot(struct ucred *cred, struct vnode *dvp);
 int	mac_vnode_check_create(struct ucred *cred, struct vnode *dvp,
 	    struct componentname *cnp, struct vattr *vap);
+void	mac_vnode_post_create(struct ucred *cred, struct vnode *dvp,
+			      struct vnode *vp, struct componentname *cnp,
+			      struct vattr *vap);
 int	mac_vnode_check_deleteacl(struct ucred *cred, struct vnode *vp,
 	    acl_type_t type);
 int	mac_vnode_check_deleteextattr(struct ucred *cred, struct vnode *vp,

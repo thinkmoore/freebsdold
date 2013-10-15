@@ -557,6 +557,10 @@ typedef int	(*mpo_vnode_check_chroot_t)(struct ucred *cred,
 typedef int	(*mpo_vnode_check_create_t)(struct ucred *cred,
 		    struct vnode *dvp, struct label *dvplabel,
 		    struct componentname *cnp, struct vattr *vap);
+typedef void    (*mpo_vnode_post_create_t)(struct ucred *cred,
+		    struct vnode *dvp, struct label *dvplabel,
+		    struct vnode *vp, struct label *vplabel,
+		    struct componentname *cnp, struct vattr *vap);
 typedef int	(*mpo_vnode_check_deleteacl_t)(struct ucred *cred,
 		    struct vnode *vp, struct label *vplabel,
 		    acl_type_t type);
@@ -923,6 +927,7 @@ struct mac_policy_ops {
 	mpo_vnode_check_chdir_t			mpo_vnode_check_chdir;
 	mpo_vnode_check_chroot_t		mpo_vnode_check_chroot;
 	mpo_vnode_check_create_t		mpo_vnode_check_create;
+	mpo_vnode_post_create_t			mpo_vnode_post_create;
 	mpo_vnode_check_deleteacl_t		mpo_vnode_check_deleteacl;
 	mpo_vnode_check_deleteextattr_t		mpo_vnode_check_deleteextattr;
 	mpo_vnode_check_exec_t			mpo_vnode_check_exec;

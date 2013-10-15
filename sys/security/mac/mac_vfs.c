@@ -435,6 +435,21 @@ mac_vnode_check_create(struct ucred *cred, struct vnode *dvp,
 	return (error);
 }
 
+void
+mac_vnode_post_create(struct ucred *cred, struct vnode *dvp, struct vnode *vp,
+    struct componentname *cnp, struct vattr *vap)
+{
+	ASSERT_VOP_LOCKED(dvp, "mac_vnode_post_create");
+	ASSERT_VOP_LOCKED(vp, "mac_vnode_post_create");
+
+	MAC_POLICY_PERFORM(vnode_post_create, cred,
+			   dvp, dvp->v_label,
+			   vp, vp->v_label,
+			   cnp, vap);
+
+	return;
+}
+
 MAC_CHECK_PROBE_DEFINE3(vnode_check_deleteacl, "struct ucred *",
     "struct vnode *", "acl_type_t");
 
