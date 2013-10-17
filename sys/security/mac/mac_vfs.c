@@ -1080,17 +1080,6 @@ vn_setlabel(struct vnode *vp, struct label *intlabel, struct ucred *cred)
 	if (error)
 		return (error);
 
-	/*
-	 * VADMIN provides the opportunity for the filesystem to make
-	 * decisions about who is and is not able to modify labels and
-	 * protections on files.  This might not be right.  We can't assume
-	 * VOP_SETLABEL() will do it, because we might implement that as part
-	 * of vop_stdsetlabel_ea().
-	 */
-	error = VOP_ACCESS(vp, VADMIN, cred, curthread);
-	if (error)
-		return (error);
-
 	error = VOP_SETLABEL(vp, intlabel, cred, curthread);
 	if (error)
 		return (error);
