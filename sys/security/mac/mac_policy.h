@@ -610,6 +610,11 @@ typedef int	(*mpo_vnode_check_readdir_t)(struct ucred *cred,
 		    struct vnode *dvp, struct label *dvplabel);
 typedef int	(*mpo_vnode_check_readlink_t)(struct ucred *cred,
 		    struct vnode *vp, struct label *vplabel);
+typedef int	(*mpo_vnode_check_followlink_t)(struct ucred *cred,
+		    struct vnode *vp, struct label *vplabel);
+typedef void	(*mpo_vnode_post_followlink_t)(struct ucred *cred,
+		    struct vnode *lvp, struct label *lvplabel,
+		    struct vnode *vp, struct label *vplabel);
 typedef int	(*mpo_vnode_check_relabel_t)(struct ucred *cred,
 		    struct vnode *vp, struct label *vplabel,
 		    struct label *newlabel);
@@ -945,6 +950,8 @@ struct mac_policy_ops {
 	mpo_vnode_check_read_t			mpo_vnode_check_read;
 	mpo_vnode_check_readdir_t		mpo_vnode_check_readdir;
 	mpo_vnode_check_readlink_t		mpo_vnode_check_readlink;
+	mpo_vnode_check_followlink_t		mpo_vnode_check_followlink;
+	mpo_vnode_post_followlink_t    		mpo_vnode_post_followlink;
 	mpo_vnode_check_relabel_t		mpo_vnode_check_relabel;
 	mpo_vnode_check_rename_from_t		mpo_vnode_check_rename_from;
 	mpo_vnode_check_rename_to_t		mpo_vnode_check_rename_to;

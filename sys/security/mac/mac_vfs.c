@@ -740,6 +740,35 @@ mac_vnode_check_readlink(struct ucred *cred, struct vnode *vp)
 	return (error);
 }
 
+MAC_CHECK_PROBE_DEFINE2(vnode_check_followlink, "struct ucred *",
+    "struct vnode *");
+
+int
+mac_vnode_check_followlink(struct ucred *cred, struct vnode *vp)
+{
+	int error;
+
+	ASSERT_VOP_LOCKED(vp, "mac_vnode_check_followlink");
+
+	MAC_POLICY_CHECK(vnode_check_followlink, cred, vp, vp->v_label);
+	MAC_CHECK_PROBE2(vnode_check_followlink, error, cred, vp);
+
+	return (error);
+}
+
+void
+mac_vnode_post_followlink(struct ucred *cred,
+			  struct vnode *lvp, struct vnode *vp)
+{
+	ASSERT_VOP_LOCKED(lvp, "mac_vnode_post_followlink");
+	ASSERT_VOP_LOCKED(vp, "mac_vnode_post_followlink");
+
+	MAC_POLICY_PERFORM(vnode_post_followlink, cred, lvp, lvp->v_label,
+			   vp, vp->v_label);
+
+	return;
+}
+
 MAC_CHECK_PROBE_DEFINE3(vnode_check_relabel, "struct ucred *",
     "struct vnode *", "struct label *");
 

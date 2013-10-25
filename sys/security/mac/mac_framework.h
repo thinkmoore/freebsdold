@@ -410,6 +410,9 @@ int	mac_vnode_check_read(struct ucred *active_cred,
 	    struct ucred *file_cred, struct vnode *vp);
 int	mac_vnode_check_readdir(struct ucred *cred, struct vnode *vp);
 int	mac_vnode_check_readlink(struct ucred *cred, struct vnode *vp);
+int	mac_vnode_check_followlink(struct ucred *cred, struct vnode *vp);
+void	mac_vnode_post_followlink(struct ucred *cred, struct vnode *lvp,
+				  struct vnode *vp);
 int	mac_vnode_check_rename_from(struct ucred *cred, struct vnode *dvp,
 	    struct vnode *vp, struct componentname *cnp);
 int	mac_vnode_check_rename_to(struct ucred *cred, struct vnode *dvp,
