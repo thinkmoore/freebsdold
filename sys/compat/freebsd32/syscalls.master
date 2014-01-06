@@ -1027,3 +1027,4 @@
 				    struct wrusage32 *wrusage, \
 				    siginfo_t *info); }
 #endif
+533	AUE_LINKAT	NOPROTO	{ int flinkat(int fd, int dfd, char *path); }

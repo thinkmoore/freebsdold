@@ -1581,6 +1581,19 @@ sys_linkat(struct thread *td, struct linkat_args *uap)
 	    UIO_USERSPACE, (flag & AT_SYMLINK_FOLLOW) ? FOLLOW : NOFOLLOW));
 }
 
+#ifndef _SYS_SYSPROTO_H_
+struct flinkat_args {
+	int	fd;
+	int	dfd;
+	char	*path;
+};
+#endif
+int
+sys_flinkat(struct thread *td, struct flinkat_args *uap)
+{
+	return (kern_flinkat(td, uap->fd, uap->dfd, uap->path, UIO_USERSPACE));
+}
+
 int hardlink_check_uid = 0;
 SYSCTL_INT(_security_bsd, OID_AUTO, hardlink_check_uid, CTLFLAG_RW,
     &hardlink_check_uid, 0,
@@ -1684,6 +1697,78 @@ kern_linkat(struct thread *td, int fd1, int fd2, char *path1, char *path2,
 		NDFREE(&nd, NDF_ONLY_PNBUF);
 		VFS_UNLOCK_GIANT(lvfslocked);
 	}
+	vrele(vp);
+	vn_finished_write(mp);
+	VFS_UNLOCK_GIANT(vfslocked);
+	return (error);
+}
+
+int
+kern_flinkat(struct thread *td, int fd, int dfd, char *path,
+	     enum uio_seg segflg)
+{
+	struct filedesc *fdp;
+	struct vnode *vp;
+	struct mount *mp;
+	struct nameidata nd;
+	int vfslocked;
+	int lvfslocked;
+	int error;
+
+	bwillwrite();
+
+	fdp = td->td_proc->p_fd;
+	FILEDESC_SLOCK(fdp);
+	error = fgetvp(td, fd, 0, &vp);
+	FILEDESC_SUNLOCK(fdp);
+	if (error != 0)
+	  return (error);
+
+	vfslocked = VFS_LOCK_GIANT(vp->v_mount);
+	if (vp->v_type == VDIR) {
+	  vrele(vp);
+	  VFS_UNLOCK_GIANT(vfslocked);
+	  return (EPERM); /* POSIX */
+	}
+
+	// Prepare to start writing (the write is to add the link)
+	if ((error = vn_start_write(vp, &mp, V_WAIT | PCATCH)) != 0) {
+		vrele(vp);
+		VFS_UNLOCK_GIANT(vfslocked);
+		return (error);
+	}
+	// Attempt to create the link
+	NDINIT_AT(&nd, CREATE, LOCKPARENT | SAVENAME | MPSAFE | AUDITVNODE2,
+	    segflg, path, dfd, td);
+	if ((error = namei(&nd)) == 0) {
+		lvfslocked = NDHASGIANT(&nd);
+		// SM: Check if a file already exists at the link site
+		if (nd.ni_vp != NULL) {
+			if (nd.ni_dvp == nd.ni_vp)
+				vrele(nd.ni_dvp);
+			else
+				vput(nd.ni_dvp);
+			vrele(nd.ni_vp);
+			error = EEXIST;
+		} else if ((error = vn_lock(vp, LK_EXCLUSIVE | LK_RETRY))
+		    == 0) {
+		  // ^ SM: Lock the vnode we are linking to
+			error = can_hardlink(vp, td->td_ucred);
+			if (error == 0)
+#ifdef MAC
+				error = mac_vnode_check_link(td->td_ucred,
+				    nd.ni_dvp, vp, &nd.ni_cnd);
+			if (error == 0)
+#endif
+				error = VOP_LINK(nd.ni_dvp, vp, &nd.ni_cnd);
+			// ^ SM: Create the link in nd.ni_dvp at nd.ni_cnd to vp
+			VOP_UNLOCK(vp, 0);
+			vput(nd.ni_dvp);
+		}
+		NDFREE(&nd, NDF_ONLY_PNBUF);
+		VFS_UNLOCK_GIANT(lvfslocked);
+	}
+	// SM: cleanup
 	vrele(vp);
 	vn_finished_write(mp);
 	VFS_UNLOCK_GIANT(vfslocked);
