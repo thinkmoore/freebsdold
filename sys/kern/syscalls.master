@@ -953,6 +953,5 @@
 				    int *status, int options, \
 				    struct __wrusage *wrusage, \
 				    siginfo_t *info); }
-533	AUE_LINKAT	STD	{ int flinkat(int fd, int dfd, char *path); }
 ; Please copy any additions and changes to the following compatability tables:
 ; sys/compat/freebsd32/syscalls.master

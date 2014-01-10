@@ -376,7 +376,6 @@ FBSD_1.2 {
 	rctl_add_rule;
 	rctl_remove_rule;
 	setloginclass;
-	flinkat;
 };
 
 FBSD_1.3 {

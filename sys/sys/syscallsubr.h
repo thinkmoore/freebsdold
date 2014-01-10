@@ -125,8 +125,6 @@ int	kern_lchown(struct thread *td, char *path, enum uio_seg pathseg,
 	    int uid, int gid);
 int	kern_link(struct thread *td, char *path, char *link,
 	    enum uio_seg segflg);
-int	kern_flinkat(struct thread *td, int fd, int dfd, char *path,
-	    enum uio_seg segflg);
 int	kern_linkat(struct thread *td, int fd1, int fd2, char *path1,
 	    char *path2, enum uio_seg segflg, int follow);
 int	kern_lstat(struct thread *td, char *path, enum uio_seg pathseg,
